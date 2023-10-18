@@ -1133,7 +1133,7 @@ identity.pnb = function()
                     identity.storingseeds()
                     setJob("PNB")
                     identity.line()
-                elseif findItem(112) >= setting.pack.mingems then
+                elseif findItem(112) >= setting.pack.mingems and setting.type == "nogaut" then
                     identity.buying()
                     identity.storingpacks()
                     identity.line()
@@ -1169,7 +1169,7 @@ identity.pnb = function()
                 if findItem(setting.item.seed) >= 150 then
                     identity.storingseeds()
                     identity.line()
-                elseif findItem(112) >= setting.pack.mingems then
+                elseif findItem(112) >= setting.pack.mingems and setting.type == "nogaut" then
                     identity.buying()
                     identity.storingpacks()
                     identity.line()
@@ -1205,7 +1205,7 @@ identity.pnb = function()
                     identity.storingseeds()
                     setJob("PNB")
                     identity.line()
-                elseif findItem(112) >= setting.pack.mingems then
+                elseif findItem(112) >= setting.pack.mingems and setting.type == "nogaut" then
                     identity.buying()
                     identity.storingpacks()
                     identity.line()
@@ -1243,7 +1243,7 @@ identity.pnb = function()
                     identity.storingseeds()
                     setJob("PNB")
                     identity.line()
-                elseif findItem(112) >= setting.pack.mingems then
+                elseif findItem(112) >= setting.pack.mingems and setting.type == "nogaut" then
                     identity.buying()
                     identity.storingpacks()
                     identity.line()
