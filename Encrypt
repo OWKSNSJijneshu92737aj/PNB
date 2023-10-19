@@ -108,7 +108,7 @@ identity.randomguest = function()
             return string.char(math.random(48,57))
         end
     end
-    for i = 1, setting.letter do
+    for i = 1, account.letter do
         random_letter = random_letter..stringRandom()
     end
     return random_letter
