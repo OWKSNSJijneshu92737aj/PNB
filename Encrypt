@@ -15,6 +15,7 @@ index = 1
 local tileBlock = 0
 local tileSeed = 0
 local tilePack = 0
+local tileRetrieve = 0
 identity.gaiax = 0
 identity.gaiay = 0
 identity.utx = 0
@@ -1403,28 +1404,31 @@ end
 identity.storingitems = function()
     world = identity.splitt(different.worldpnb[index], "[^:]+")[1]
     door = identity.splitt(different.worldpnb[index], "[^:]+")[2]
-    botX = math.floor(getBot().x / 32)
-    botY = math.floor(getBot().y / 32)
-    if findItem(setting.item.seed) > 0 then
-        while findItem(setting.item.block) > 0 do
-            drop(setting.item.block)
-            sleep(setting.delay.drop)
-            move(1,0)
-            sleep(100)
-            identity.reconnect(world,door,botX,botY)
-        end
-        for _, player in pairs(getPlayers()) do
-            if player.name:lower() ~= getBot().name:lower() then
-                findPath(player.x//32 , player.y//32)
+    mainitems = {setting.item.block,setting.item.seed}
+    for y ,pack in pairs(mainitems) do
+        for i, tile in pairs(getTiles()) do
+            if tile.fg == 6946 then
+                ::BACK::
+                findPath(tile.x+(tileRetrieve),tile.y - 1)
                 sleep(1000)
-                identity.reconnect(world,door,player.x//32 , player.y//32)
-                while findItem(setting.item.seed) > 155 do
-                    drop(setting.item.seed)
+                local count = 0
+                identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+                if tile.x + (tileRetrieve) >= 98 then
+                    tile.y = tile.y - 1
+                    tileRetrieve = 0
+                end
+                while findItem(pack) > 0 do
+                    drop(pack)
                     sleep(setting.delay.drop)
-                    identity.reconnect(world,door,player.x//32 , player.y//32)
+                    identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+                    count = count + 1
+                    if count >= 2 then
+                        tileRetrieve = tileRetrieve + 1
+                        goto BACK
+                    end
                 end
             end
-            if findItem(setting.item.seed) == 0 then
+            if findItem(pack) == 0 then
                 break
             end
         end
