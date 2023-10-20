@@ -1418,7 +1418,7 @@ identity.storingitems = function()
                 findPath(player.x//32 , player.y//32)
                 sleep(1000)
                 identity.reconnect(world,door,player.x//32 , player.y//32)
-                while findItem(setting.item.seed) > 0 do
+                while findItem(setting.item.seed) > 150 do
                     drop(setting.item.seed)
                     sleep(setting.delay.drop)
                     identity.reconnect(world,door,player.x//32 , player.y//32)
