@@ -1287,17 +1287,17 @@ identity.pnb = function()
         end
     elseif setting.type == "gaut" then
         for _, object in pairs(getObjects()) do
-            if object.id == setting.item.block then
-                if identity.itemFloat(setting.item.block) >= 200 then
-                    findPath(identity.round((object.x)/32), math.floor((object.y)/32))
-                    sleep(1000)
-                    collect(3,112)
-                    if findItem(setting.item.block) >= setting.mode.pnbtile then
-                        identity.line()
-                    end
-                else
-                    identity.take()
-                end
+            if object.id == setting.item.seed then
+                findPath(identity.round((object.x)/32), math.floor((object.y)/32))
+                sleep(1000)
+                collect(3,112)
+                identity.reconnect(world,door,identity.round((object.x)/32), math.floor((object.y)/32))
+            end
+            if findItem(setting.item.seed) > 0 then
+                identity.storingseeds()
+                identity.take()
+            else
+                identity.take()
             end
         end
     end
