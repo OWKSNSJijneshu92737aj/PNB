@@ -159,12 +159,9 @@ identity.skiptut = function()
         goto BACK
     end
     sleep(2000)
-    while getTile(math.floor(getBot().x / 32)+1,math.floor(getBot().y / 32)).fg ~= 0 do
-        punch(1,0)
-        sleep(setting.delay.punch)
-    end
-    sleep(2000)
     ::PLACE::
+    punch(1,0)
+    sleep(500)
     place(2,1,0)
     sleep(500)
     if getTile(math.floor(getBot().x / 32)+1,math.floor(getBot().y / 32)).fg ~= 2 then
@@ -559,10 +556,15 @@ identity.reconnect = function(world,id,x,y)
             sendPacket("action|join_request\nname|"..world:upper().."\ninvitedWorld|0",3)
             sleep(setting.delay.warp)
         end
-        if id ~= "" then
+        if getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 then
+            local stuck = 0
             while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
                 sendPacket("action|join_request\nname|"..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
                 sleep(setting.delay.warp)
+                if stuck == 5 then
+                    identity.botinfo("[ ||"..getBot().name.."|| ] status is stuck at white door @everyone")
+                    print("[ "..getBot().name.." ] status is stuck at white door")
+                end
             end
         end
         if x and y then
@@ -573,20 +575,6 @@ identity.reconnect = function(world,id,x,y)
         end
         identity.botinfo("[ ||"..getBot().name.."|| ] status is "..getBot().status.." @everyone")
         print("[ "..getBot().name.." ] status is "..getBot().status.."")
-    end
-    while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
-        identity.botinfo("[ ||"..getBot().name.."|| ] back to white door, what happened?! trying back to position")
-        print("[ "..getBot().name.." ] back to white door, what happened?! trying back to position")
-        sendPacket("action|join_request\nname|" ..world:upper().."|"..id:upper().."\ninvitedWorld|0", 3)
-        sleep(setting.delay.warp)
-        if x and y then
-            while math.floor(getBot().x / 32) ~= x or math.floor(getBot().y / 32) ~= y do
-                findPath(x,y)
-                sleep(100)
-            end
-        end
-        identity.botinfo("[ ||"..getBot().name.."|| ] already back to position")
-        print("[ "..getBot().name.." ] already back to position")
     end
 end
 
@@ -988,7 +976,8 @@ identity.take = function()
 							findPath(identity.round((object.x)/32), math.floor((object.y)/32))
 							sleep(500)
 							collect(2)
-							sleep(500)
+                            sleep(500)
+                            identity.reconnect(world,door,identity.round((object.x)/32), math.floor((object.y)/32))
 						end
 						if findItem(setting.item.block) >= setting.mode.pnbtile then
 							break
@@ -1297,16 +1286,17 @@ identity.pnb = function()
         end
     elseif setting.type == "gaut" then
         for _, object in pairs(getObjects()) do
-            if object.id == setting.item.seed then
-                findPath(identity.round((object.x)/32), math.floor((object.y)/32))
-                sleep(1000)
-                collect(3,112)
-            end
-            if findItem(setting.item.seed) > 0 then
-                identity.storingseeds()
-                identity.take()
-            else
-                identity.take()
+            if object.id == setting.item.block then
+                if identity.itemFloat(setting.item.block) >= 200 then
+                    findPath(identity.round((object.x)/32), math.floor((object.y)/32))
+                    sleep(1000)
+                    collect(3,112)
+                    if findItem(setting.item.block) >= setting.mode.pnbtile then
+                        identity.line()
+                    end
+                else
+                    identity.take()
+                end
             end
         end
     end
@@ -1391,20 +1381,51 @@ identity.setposition = function()
             for i , tile in pairs(getTiles()) do
                 if tile.fg == 6948 then
                     findPath(tile.x,tile.y-1)
-                    sleep(100)
+                    sleep(1000)
+                    identity.reconnect(world,door,tile.x,tile.y-1)
                     identity.utx = math.floor(getBot().x / 32)
                     identity.uty = math.floor(getBot().y / 32)
-                    sleep(100)
                 end
             end
             for i , tile in pairs(getTiles()) do
                 if tile.fg == 6946 then
                     findPath(tile.x,tile.y-1)
-                    sleep(100)
+                    sleep(1000)
+                    identity.reconnect(world,door,tile.x,tile.y-1)
                     identity.gaiax = math.floor(getBot().x / 32)
                     identity.gaiay = math.floor(getBot().y / 32)
-                    sleep(100)
                 end
+            end
+        end
+    end
+end
+
+identity.storingitems = function()
+    world = identity.splitt(different.worldpnb[index], "[^:]+")[1]
+    door = identity.splitt(different.worldpnb[index], "[^:]+")[2]
+    botX = math.floor(getBot().x / 32)
+    botY = math.floor(getBot().y / 32)
+    if findItem(setting.item.seed) > 0 then
+        while findItem(setting.item.block) > 0 do
+            drop(setting.item.block)
+            sleep(setting.delay.drop)
+            move(1,0)
+            sleep(100)
+            identity.reconnect(world,door,botX,botY)
+        end
+        for _, player in pairs(getPlayers()) do
+            if player.name:lower() ~= getBot().name:lower() then
+                findPath(player.x//32 , player.y//32)
+                sleep(1000)
+                identity.reconnect(world,door,player.x//32 , player.y//32)
+                while findItem(setting.item.seed) > 0 do
+                    drop(setting.item.seed)
+                    sleep(setting.delay.drop)
+                    identity.reconnect(world,door,player.x//32 , player.y//32)
+                end
+            end
+            if findItem(setting.item.seed) == 0 then
+                break
             end
         end
     end
@@ -1414,6 +1435,7 @@ if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
     if account.access then
         identity.mainacc()
     end
+    sleep(math.random(100,3000))
     if getBot().world:find("TUTORIAL") then
         if account.skiptutor then
             identity.skiptut()
@@ -1429,29 +1451,13 @@ if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
             sleep(setting.delay.retrieve)
             wrench(0,1)
             sleep(setting.delay.retrieve*2)
-            if findItem(setting.item.seed) > 0 then
-                while findItem(setting.item.seed) > 0 do
-                    drop(setting.item.seed)
-                    sleep(setting.delay.drop)
-                    if findItem(setting.item.seed) == 0 then
-                        break
-                    end
-                end
-            end
             sleep(1500)
             findPath(identity.gaiax,identity.gaiay)
             sleep(setting.delay.retrieve)
             wrench(0,1)
             sleep(setting.delay.retrieve*2)
-            if findItem(setting.item.block) > 0 then
-                while findItem(setting.item.block) > 0 do
-                    drop(setting.item.block)
-                    sleep(setting.delay.drop)
-                    if findItem(setting.item.block) == 0 then
-                        break
-                    end
-                end
-            end
+            identity.storingitems()
+            identity.reconnect(world,door,identity.utx,identity.uty)
         end
     else
         identity.take()
