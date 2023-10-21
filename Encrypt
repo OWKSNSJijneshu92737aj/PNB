@@ -1286,19 +1286,22 @@ identity.pnb = function()
             identity.take()
         end
     elseif setting.type == "gaut" then
-        for _, object in pairs(getObjects()) do
-            if object.id == setting.item.seed then
-                findPath(identity.round((object.x)/32), math.floor((object.y)/32))
-                sleep(1000)
-                collect(3,112)
-                identity.reconnect(world,door,identity.round((object.x)/32), math.floor((object.y)/32))
+        if identity.itemFloat(setting.item.seed) == 0 then
+            identity.take()
+        else
+            for _, object in pairs(getObjects()) do
+                if object.id == setting.item.seed then
+                    findPath(identity.round((object.x)/32), math.floor((object.y)/32))
+                    sleep(1000)
+                    collect(3,112)
+                    identity.reconnect(world,door,identity.round((object.x)/32), math.floor((object.y)/32))
+                end
+                if findItem(setting.item.seed) > 0 then
+                    break
+                end
             end
-            if findItem(setting.item.seed) > 0 then
-                identity.storingseeds()
-                identity.take()
-            else
-                identity.take()
-            end
+            identity.storingseeds()
+            identity.take()
         end
     end
 end
