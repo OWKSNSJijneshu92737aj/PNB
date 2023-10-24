@@ -649,12 +649,12 @@ identity.takepickaxe = function()
             sleep(1000)
         else
             print("Id door world take support items is wrong, check ur id door !!")
-            infoBot("Id door world take support items is wrong, check ur id door !! @everyone")
+            identity.botinfo("Id door world take support items is wrong, check ur id door !! @everyone")
             error()
         end
     else
         print("World take support items is nuked, check ur world !!")
-        infoBot("World take support items is nuked, check ur world !! @everyone")
+        identity.botinfo("World take support items is nuked, check ur world !! @everyone")
         error()
     end
 end
