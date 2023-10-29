@@ -149,12 +149,12 @@ identity.skiptut = function()
     sendPacket("ftue_start_popup_close",2)
     sleep(500)
     identity.position()
-    sleep(1500)
-    ::BACK::
-    findPath(47,23)
     sleep(2500)
+    ::Tryingfp::
+    findPath(47,23)
+    sleep(2000)
     if math.floor(getBot().x / 32) ~= 47 and math.floor(getBot().y / 32) ~= 23 then
-        goto BACK
+        goto Tryingfp
     end
     sleep(2000)
     ::PLACE::
@@ -255,7 +255,7 @@ identity.mainacc = function()
             while getBot().status ~= "online" do
                 connect()
                 sleep(setting.delay.reconnect)
-                if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "aap detected" then
+                if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "aap detected" or getBot().status == "temporary banned" then
                     identity.botinfo("Bot growid : [ ||"..getBot().name.."|| ] status is "..getBot().status..", Changing bots if there are still bots remaining @everyone")
                     print("[ "..getBot().name.." ] status is "..getBot().status..", Changing bots if there are still bots remaining")
                     identity.writeFile("[ "..getBot().name.." ] status is "..getBot().status.."")
