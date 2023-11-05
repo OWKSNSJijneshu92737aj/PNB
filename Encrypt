@@ -701,12 +701,11 @@ identity.takepickaxe = function()
         if not wrong then
             if findItem(98) == 0 and identity.itemFloat(98) == 0 then
                 repeat
-                    sleep(2000)
+                    sleep(3000)
                 until identity.itemFloat(98) > 0
                 for _, obj in pairs(getObjects()) do
                     if obj.id == 98 then
                         findPath(math.floor(obj.x / 32),math.floor(obj.y / 32))
-                        sleep(1000)
                         collect(2)
                         sleep(1000)
                     end
