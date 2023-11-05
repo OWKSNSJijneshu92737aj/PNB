@@ -569,8 +569,8 @@ identity.reconnect = function(world,id,x,y)
             identity.backupacc()
         end
     end
-    while findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" do
-        if not string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) and string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then 
+    if not string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) and string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then         
+        if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then  
             identity.takepickaxe()
         end
     end
