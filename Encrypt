@@ -1097,6 +1097,10 @@ identity.line = function()
     identity.webhookinfo()
     world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
     door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
+    while findItem(98) == 0 and account.takepickaxe.access do
+        identity.takepickaxe()
+        identity.warp(world,door)
+    end
     identity.warp(world,door)
     if not nuked then
         if not wrong then
