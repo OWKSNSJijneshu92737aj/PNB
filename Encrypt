@@ -52,15 +52,6 @@ identity.punchitemup = function(x,y)
     return false
 end
 
-identity.punchitemdown = function(x,y)
-    for _,tilepunch in pairs(tilebreak) do
-        if getTile(x +tilepunch,y + 2).fg ~= 0 or getTile(x +tilepunch,y + 2).bg ~= 0 then
-            return true
-        end
-    end
-    return false
-end
-
 for x = math.floor(setting.mode.pnbtile/2),1,-1 do
     x = x * -1
     table.insert(tilebreak,x)
@@ -73,15 +64,6 @@ end
 identity.placeitemup = function(x,y)
     for _,tileplace in pairs(tilebreak) do
         if getTile(x +tileplace,y -2).fg == 0 and getTile(x+tileplace,y-2).bg == 0 then
-            return true
-        end
-    end
-    return false
-end
-
-identity.placeitemdown = function(x,y)
-    for _,tileplace in pairs(tilebreak) do
-        if getTile(x +tileplace,y + 2).fg == 0 and getTile(x+tileplace,y+2).bg == 0 then
             return true
         end
     end
@@ -1159,28 +1141,15 @@ identity.pnb = function()
     door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
     if setting.mode.pnbtile == 1 then
         while findItem(setting.item.block) >= setting.mode.pnbtile do
-            if setting.mode.pnbmode == "up" then
-                if getTile(botX,botY -2).bg ~= 0 or getTile(botX, botY -2).fg ~= 0 then
-                    punch(0,-2)
-                    sleep(setting.delay.punch)
-                    identity.reconnect(world,door,botX,botY)
-                end
-                if getTile(botX,botY -2).bg == 0 or getTile(botX, botY -2).fg == 0 then
-                    place(setting.item.block,0,-2)
-                    sleep(setting.delay.place)
-                    identity.reconnect(world,door,botX,botY)
-                end
-            elseif setting.mode.pnbmode == "down" then
-                if getTile(botX,botY+2).bg ~= 0 or getTile(botX, botY +2).fg ~= 0 then
-                    punch(0,2)
-                    sleep(setting.delay.punch)
-                    identity.reconnect(world,door,botX,botY)
-                end
-                if getTile(botX,botY +2).bg == 0 or getTile(botX, botY +2).fg == 0 then
-                    place(setting.item.block,0,2)
-                    sleep(setting.delay.place)
-                    identity.reconnect(world,door,botX,botY)
-                end
+            if getTile(botX,botY -2).bg ~= 0 or getTile(botX, botY -2).fg ~= 0 then
+                punch(0,-2)
+                sleep(setting.delay.punch)
+                identity.reconnect(world,door,botX,botY)
+            end
+            if getTile(botX,botY -2).bg == 0 or getTile(botX, botY -2).fg == 0 then
+                place(setting.item.block,0,-2)
+                sleep(setting.delay.place)
+                identity.reconnect(world,door,botX,botY)
             end
             if setting.type == "nogaut" then
                 collect(2)
@@ -1202,60 +1171,38 @@ identity.pnb = function()
         end
     else
         while findItem(setting.item.block) >= setting.mode.pnbtile do
-            if setting.mode.pnbmode == "up" then
-                while identity.placeitemup(botX,botY) do
-                    for _,i in pairs(tilebreak) do
-                        if getTile(botX + i,botY -2).fg == 0 and getTile(botX + i,botY - 2).bg == 0 then
-                            place(setting.item.block,i,-2)
-                            sleep(setting.delay.place)
-                            identity.reconnect(world,door,botX,botY)
-                        end
-                    end
-                end
-                while identity.punchitemup(botX,botY) do
-                    for _,i in pairs(tilebreak) do
-                        if getTile(botX + i,botY - 2).fg ~= 0 or getTile(botX + i,botY - 2).bg ~= 0 then
-                            punch(i,-2)
-                            sleep(setting.delay.punch)
-                            identity.reconnect(world,door,botX,botY)
-                        end
-                    end
-                end
-            elseif setting.mode.pnbmode == "down" then
-                while identity.placeitemdown(botX,botY) do
-                    for _,i in pairs(tilebreak) do
-                        if getTile(botX + i,botY + 2).fg == 0 and getTile(botX + i,botY + 2).bg == 0 then
-                            place(setting.item.block,i,2)
-                            sleep(setting.delay.place)
-                            identity.reconnect(world,door,botX,botY)
-                        end
-                    end
-                end
-                while identity.punchitemdown(botX,botY) do
-                    for _,i in pairs(tilebreak) do
-                        if getTile(botX + i,botY + 2).fg ~= 0 or getTile(botX + i,botY + 2).bg ~= 0 then
-                            punch(i,2)
-                            sleep(setting.delay.punch)
-                            identity.reconnect(world,door,botX,botY)
-                        end
+            while identity.placeitemup(botX,botY) do
+                for _,i in pairs(tilebreak) do
+                    if getTile(botX + i,botY -2).fg == 0 and getTile(botX + i,botY - 2).bg == 0 then
+                        place(setting.item.block,i,-2)
+                        sleep(setting.delay.place)
+                        identity.reconnect(world,door,botX,botY)
                     end
                 end
             end
-            if setting.type == "nogaut" then
-                collect(3)
-                sleep(30)
-            elseif setting.type == "gaut" then
-                collect(3,112)
-                sleep(30)
+            while identity.punchitemup(botX,botY) do
+                for _,i in pairs(tilebreak) do
+                    if getTile(botX + i,botY - 2).fg ~= 0 or getTile(botX + i,botY - 2).bg ~= 0 then
+                        punch(i,-2)
+                        sleep(setting.delay.punch)
+                        identity.reconnect(world,door,botX,botY)
+                    end
+                end
             end
-            if findItem(setting.item.seed) >= 150 then
-                identity.storingseeds()
-                identity.line()
-            elseif findItem(112) >= setting.pack.mingems and setting.pack.buypack then
-                identity.buying()
-                identity.storingpacks()
-                identity.line()
-            end
+        if setting.type == "nogaut" then
+            collect(3)
+            sleep(30)
+        elseif setting.type == "gaut" then
+            collect(3,112)
+            sleep(30)
+        end
+        if findItem(setting.item.seed) >= 150 then
+            identity.storingseeds()
+            identity.line()
+        elseif findItem(112) >= setting.pack.mingems and setting.pack.buypack then
+            identity.buying()
+            identity.storingpacks()
+            identity.line()
         end
     end
     if setting.type == "nogaut" then
