@@ -569,7 +569,7 @@ identity.reconnect = function(world,id,x,y)
             identity.backupacc()
         end
     end
-    if findItem(98) == 0 and not string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) and not string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then 
+    if findItem(98) == 0 and account.takepickaxe.access and not string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) and not string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then 
         identity.takepickaxe()
     end
     if identity.itemFloat(112) == setting.storage.pnb.limitgems then
