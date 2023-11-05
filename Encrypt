@@ -699,7 +699,10 @@ identity.takepickaxe = function()
     identity.warp(world,door)
     if not nuked then
         if not wrong then
-            if findItem(98) == 0 and identity.itemFloat(98) > 0 then
+            if findItem(98) == 0 and identity.itemFloat(98) == 0 then
+                repeat
+                    sleep(2000)
+                until identity.itemFloat(98) > 0
                 for _, obj in pairs(getObjects()) do
                     if obj.id == 98 then
                         findPath(math.floor(obj.x / 32),math.floor(obj.y / 32))
