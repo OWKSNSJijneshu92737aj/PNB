@@ -14,10 +14,7 @@ strings = ""
 local tileBlock = 0
 local tileSeed = 0
 local tilePack = 0
-local tileRetrieve = 0
-local tileRetrieves = 0
-local syndrom = 2
-local index = 1
+index = 1
 local identity = {}
 identity.seed = 1
 identity.block = 1
@@ -26,10 +23,6 @@ identity.pack = 1
 identity.goodtime = os.time()
 identity.indexBot = 1
 identity.indexBackup = 1
-identity.gaiax = 0
-identity.gaiay = 0
-identity.utx = 0
-identity.uty = 0
 blockX = setting.storage.block.drop.x - 1
 blockY = setting.storage.block.drop.y - 1
 seedX = setting.storage.seed.drop.x - 1
@@ -1166,8 +1159,6 @@ identity.pnb = function()
     door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
     if setting.mode.pnbtile == 1 then
         while findItem(setting.item.block) >= setting.mode.pnbtile do
-            botX = math.floor(getBot().x / 32)
-            botY = math.floor(getBot().y / 32)
             if setting.mode.pnbmode == "up" then
                 if getTile(botX,botY -2).bg ~= 0 or getTile(botX, botY -2).fg ~= 0 then
                     punch(0,-2)
@@ -1180,12 +1171,12 @@ identity.pnb = function()
                     identity.reconnect(world,door,botX,botY)
                 end
             elseif setting.mode.pnbmode == "down" then
-                if getTile(botX,botY + 2).bg ~= 0 or getTile(botX, botY + 2).fg ~= 0 then
+                if getTile(botX,botY+2).bg ~= 0 or getTile(botX, botY +2).fg ~= 0 then
                     punch(0,2)
                     sleep(setting.delay.punch)
                     identity.reconnect(world,door,botX,botY)
                 end
-                if getTile(botX,botY + 2).bg == 0 or getTile(botX, botY + 2).fg == 0 then
+                if getTile(botX,botY +2).bg == 0 or getTile(botX, botY +2).fg == 0 then
                     place(setting.item.block,0,2)
                     sleep(setting.delay.place)
                     identity.reconnect(world,door,botX,botY)
@@ -1296,139 +1287,6 @@ identity.pnb = function()
     end
 end
 
-identity.hook = function(varlist)
-	if varlist[0] == "OnDialogRequest" and varlist[1]:find("add_label_with_icon|big|`wUnstable Tesseract``|left|6948|") then
-		if varlist[1]:find("The machine is currently empty!") then 
-		else
-			amount = varlist[1]:match("The machine contains (%d+)")
-			amounts = 1
-			if tonumber(amount) >= 200 then 
-				amounts = 200 
-			end
-			if tonumber(amount) < 200 then 
-				amounts = tonumber(amount) 
-			end
-            local utpkt = string.format([[action|dialog_return
-            dialog_name|itemsucker_block
-            tilex|%d|
-            tiley|%d|
-            buttonClicked|retrieveitem
-            chk_enablesucking|1
-            ]], varlist[1]:match("tilex|(%d+)"), varlist[1]:match("tiley|(%d+)"))
-            sendPacket(utpkt,2)
-            local utpkt = string.format([[action|dialog_return
-            dialog_name|itemremovedfromsucker
-            tilex|%d|
-            tiley|%d|
-            itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , amounts)
-            sendPacket(utpkt,2)
-        end
-    end
-	if varlist[0] == "OnDialogRequest" and varlist[1]:find("add_label_with_icon|big|`wGaia's Beacon``|left|6946|") then
-		if varlist[1]:find("The machine is currently empty!") then 
-		else
-			ammount = varlist[1]:match("The machine contains (%d+)")
-			ammounts = 1
-			if tonumber(ammount) >= 200 then 
-				ammounts = 200 
-			end
-			if tonumber(ammount) < 200 then 
-				ammounts = tonumber(ammount) 
-			end
-            local gaiapkt = string.format([[action|dialog_return
-            dialog_name|itemsucker_seed
-            tilex|%d|
-            tiley|%d|
-            buttonClicked|retrieveitem
-            chk_enablesucking|1
-            ]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)"))
-            sendPacket(gaiapkt,2)
-            local gaiapkt = string.format([[action|dialog_return
-            dialog_name|itemremovedfromsucker
-            tilex|%d|
-            tiley|%d|
-            itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , ammounts)
-            sendPacket(gaiapkt,2)
-        end
-	end
-end
-
-addHook("onvariant","retrieve",identity.hook)
-
-identity.setposition = function()
-    world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
-    door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
-    setJob("Retrieve")
-    identity.warp(world,door)
-    if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) then
-        for i , tile in pairs(getTiles()) do
-            if tile.fg == 6948 then
-                findPath(tile.x,tile.y-1)
-                sleep(1000)
-                identity.utx = math.floor(getBot().x / 32)
-                identity.uty = math.floor(getBot().y / 32)
-            end
-        end
-    elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then
-        for i , tile in pairs(getTiles()) do
-            if tile.fg == 6946 then
-                findPath(tile.x,tile.y-1)
-                sleep(1000)
-                identity.gaiax = math.floor(getBot().x / 32)
-                identity.gaiay = math.floor(getBot().y / 32)
-            end
-        end
-    end
-end
-
-identity.storingitems = function()
-    world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
-    door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
-    for i, tile in pairs(getTiles()) do
-        if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname) then
-            if tile.fg == 6946 then
-                ::BACK::
-                findPath(tile.x + (tileRetrieve),tile.y - 1)
-                sleep(1000)
-                local count = 0
-                if tile.x + (tileRetrieve) >= 98 then
-                    tile.y = tile.y - 1
-                    tileRetrieve = 0
-                end
-                while findItem(setting.item.block) > 0 do
-                    drop(setting.item.block)
-                    sleep(setting.delay.drop)
-                    count = count + 1
-                    if count >= 2 then
-                        tileRetrieve = tileRetrieve + 1
-                        goto BACK
-                    end
-                end
-            end
-        elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname) then
-            if tile.fg == 6946 then
-                ::BACKS::
-                findPath(tile.x + (tileRetrieves),tile.y - 1)
-                sleep(1000)
-                local count = 0
-                if tile.x + (tileRetrieves) >= 98 then
-                    tile.y = tile.y - 1
-                    tileRetrieves = 0
-                end
-                while findItem(setting.item.seed) > 0 do
-                    drop(setting.item.seed)
-                    sleep(setting.delay.drop)
-                    count = count + 1
-                    if count >= 2 then
-                        tileRetrieves = tileRetrieves + 1
-                        goto BACKS
-                    end
-                end
-            end
-        end
-    end
-end
-
 if BizzantiuM.version == "1.1" and BizzantiuM.handler == "akbarsht" then
     if account.access then
         identity.mainacc()
@@ -1439,35 +1297,13 @@ if BizzantiuM.version == "1.1" and BizzantiuM.handler == "akbarsht" then
             identity.skiptut()
         end
     end
-    if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut.botname)then
-        identity.setposition()
-        while true do
-            findPath(identity.utx,identity.uty)
-            sleep(setting.delay.retrieve)
-            wrench(0,1)
-            sleep(setting.delay.retrieve*2)
-            identity.storingitems()
-            identity.reconnect(world,door,identity.utx,identity.uty)
-        end
-    elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia.botname)then
-        identity.setposition()
-        while true do
-            findPath(identity.gaiax,identity.gaiay)
-            sleep(setting.delay.retrieve)
-            wrench(0,1)
-            sleep(setting.delay.retrieve*2)
-            identity.storingitems()
-            identity.reconnect(world,door,identity.gaiax,identity.gaiay)
-        end
+    if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then
+        identity.takepickaxe()
+    end
+    if findItem(setting.item.block) >= setting.mode.pnbtile then
+        identity.line()
     else
-        if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then
-            identity.takepickaxe()
-        end
-        if findItem(setting.item.block) >= setting.mode.pnbtile then
-            identity.line()
-        else
-            identity.take()
-            identity.line()
-        end
+        identity.take()
+        identity.line()
     end
 end
