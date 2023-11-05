@@ -696,7 +696,7 @@ identity.takepickaxe = function()
     identity.warp(world,door)
     if not nuked then
         if not wrong then
-            if findItem(98) == 0 and identity.itemFloat(98) > 0 then
+            if findItem(98) == 0 then
                 for _, obj in pairs(getObjects()) do
                     if obj.id == 98 then
                         findPath(math.floor(obj.x / 32),math.floor(obj.y / 32))
@@ -1091,7 +1091,7 @@ identity.line = function()
     identity.webhookinfo()
     world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
     door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
-    while findItem(98) == 0 and account.takepickaxe.access do
+    if findItem(98) == 0 and account.takepickaxe.access then
         identity.takepickaxe()
     end
     identity.warp(world,door)
@@ -1321,7 +1321,6 @@ identity.hook = function(varlist)
             tilex|%d|
             tiley|%d|
             itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , amounts)
-            sleep(250)
             sendPacket(utpkt,2)
         end
     end
@@ -1349,7 +1348,6 @@ identity.hook = function(varlist)
             tilex|%d|
             tiley|%d|
             itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , ammounts)
-            sleep(250)
             sendPacket(gaiapkt,2)
         end
 	end
