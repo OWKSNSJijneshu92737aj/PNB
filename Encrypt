@@ -569,6 +569,9 @@ identity.reconnect = function(world,id,x,y)
             identity.backupacc()
         end
     end
+    if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then
+        identity.takepickaxe()
+    end
     if identity.itemFloat(112) == setting.storage.pnb.limitgems then
         if setting.mode.removeBot then
             identity.botinfo("Gems at world pnb has reached limit")
@@ -696,7 +699,7 @@ identity.takepickaxe = function()
     identity.warp(world,door)
     if not nuked then
         if not wrong then
-            while findItem(98) == 0 do
+            if findItem(98) == 0 and identity.itemFloat(98) > 0 then
                 for _, obj in pairs(getObjects()) do
                     if obj.id == 98 then
                         findPath(math.floor(obj.x / 32),math.floor(obj.y / 32))
