@@ -1189,20 +1189,21 @@ identity.pnb = function()
                     end
                 end
             end
-        if setting.type == "nogaut" then
-            collect(3)
-            sleep(30)
-        elseif setting.type == "gaut" then
-            collect(3,112)
-            sleep(30)
-        end
-        if findItem(setting.item.seed) >= 150 then
-            identity.storingseeds()
-            identity.line()
-        elseif findItem(112) >= setting.pack.mingems and setting.pack.buypack then
-            identity.buying()
-            identity.storingpacks()
-            identity.line()
+            if setting.type == "nogaut" then
+                collect(3)
+                sleep(30)
+            elseif setting.type == "gaut" then
+                collect(3,112)
+                sleep(30)
+            end
+            if findItem(setting.item.seed) >= 150 then
+                identity.storingseeds()
+                identity.line()
+            elseif findItem(112) >= setting.pack.mingems and setting.pack.buypack then
+                identity.buying()
+                identity.storingpacks()
+                identity.line()
+            end
         end
     end
     if setting.type == "nogaut" then
