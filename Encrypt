@@ -43,7 +43,7 @@ identity.splitt = function(str, ptr)
     return tbl
 end
 
-identity.punchitemup = function(x,y)
+identity.punchitem = function(x,y)
     for _,tilepunch in pairs(tilebreak) do
         if getTile(x +tilepunch,y -2).fg ~= 0 or getTile(x +tilepunch,y -2).bg ~= 0 then
             return true
@@ -61,7 +61,7 @@ for x = 0, math.ceil(setting.mode.pnbtile/2) - 1 do
     table.insert(tilebreak,x)
 end
 
-identity.placeitemup = function(x,y)
+identity.placeitem = function(x,y)
     for _,tileplace in pairs(tilebreak) do
         if getTile(x +tileplace,y -2).fg == 0 and getTile(x+tileplace,y-2).bg == 0 then
             return true
@@ -420,7 +420,7 @@ end
 identity.blockstorage = function()
     strings = ""
 	for i = 1, #setting.storage.block.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.block.world[i])).."|| "..(infoid[setting.storage.block.world[i]] or "?")..""
+		strings = strings.."\n||"..string.upper(setting.storage.block.world[i]).."|| "..(infoid[setting.storage.block.world[i]] or "?")..""
     end
     return strings
 end
@@ -428,7 +428,7 @@ end
 identity.seedstorage = function()
     strings = ""
 	for i = 1, #setting.storage.seed.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.seed.world[i])).."|| "..(infoid[setting.storage.seed.world[i]] or "?")..""
+		strings = strings.."\n||"..string.upper(setting.storage.seed.world[i]).."|| "..(infoid[setting.storage.seed.world[i]] or "?")..""
     end
     return strings
 end
@@ -436,7 +436,7 @@ end
 identity.packstorage = function()
     strings = ""
 	for i = 1, #setting.storage.pack.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.pack.world[i])).."|| "..(infoid[setting.storage.pack.world[i]] or "?")..""
+		strings = strings.."\n||"..string.upper(setting.storage.pack.world[i]).."|| "..(infoid[setting.storage.pack.world[i]] or "?")..""
     end
     return strings
 end
@@ -485,7 +485,7 @@ identity.webhookinfo = function()
                 username = "BizzantiuM's"
                 embeds = @(
                     @{
-                        title = "AUTO PNB v1.0 [ ]]..string.upper(setting.type)..[[ ]"
+                        title = "AUTO PNB v1.1 [ ]]..string.upper(setting.type)..[[ ]"
                         color = "]]..math.random(111111,999999)..[["
                         fields = @(
                             @{
@@ -533,7 +533,7 @@ identity.reconnect = function(world,id,x,y)
     if getBot().level >= account.switch.level then
         if account.switch.access then
             while findItem(setting.item.block) > 0 do
-                identity.storingblocks()
+                identity.pnb()
             end
             while findItem(setting.item.seed) > 0 do
                 identity.storingseeds()
@@ -542,25 +542,6 @@ identity.reconnect = function(world,id,x,y)
             removeBot(getBot().name)
             sleep(2000)
             identity.backupacc()
-        end
-    end
-    if identity.itemFloat(112) == setting.storage.pnb.limitgems then
-        if setting.mode.removeBot then
-            identity.botinfo("Gems at world pnb has reached limit")
-            print("Gems at world pnb has reached limit")
-            sleep(2000)
-            removeBot(getBot().name)
-            error()
-        else
-            random_letter = ""
-            random_letter = identity.randomworld()
-            while getTile(math.floor(getBot().x / 32), math.floor(getBot().y / 32)).fg ~= 6 do
-                sendPacket("action|join_request\nname|" ..random_letter.."\ninvitedWorld|0", 3)
-                sleep(5000)
-            end
-            identity.botinfo("Gems at world pnb has reached limit")
-            print("Gems at world pnb has reached limit")
-            error()
         end
     end
     if getBot().world ~= world:upper() then 
@@ -638,9 +619,6 @@ identity.warp = function(world,door)
             if varlist[0] == "OnConsoleMessage" then
                 if string.find(varlist[1],"inaccessible.") then
                     nuked = true
-                end
-                if string.find(varlist[1],"level.") then
-                    level = true
                 end
             end
         end)
@@ -875,6 +853,7 @@ identity.storingseeds = function()
                             findPath(seedX + (tileSeed),seedY)
                             sleep(1000)
                             local count = 0
+                            identity.reconnect(world,door,seedX + (tileSeed),seedY)
                             if seedX + (tileSeed) >= 98 then
                                 seedY = seedY - 1
                                 tileSeed = 0
@@ -882,6 +861,7 @@ identity.storingseeds = function()
                             while findItem(setting.item.seed) > 0 do
                                 drop(setting.item.seed)
                                 sleep(setting.delay.drop)
+                                identity.reconnect(world,door,seedX + (tileSeed),seedY)
                                 count = count + 1
                                 if count >= 2 then
                                     tileSeed = tileSeed + 1
@@ -934,51 +914,6 @@ identity.storingseeds = function()
         end
     end
     infoid[world] = "["..identity.itemFloat(setting.item.seed).."]"
-end
-
-identity.storingblocks = function()
-    for i = identity.block , #setting.storage.block.world do
-		world = setting.storage.block.world[i]
-        door = setting.storage.block.door
-        identity.warp(world,door)
-        if identity.itemFloat(setting.item.block) == 0 then
-            identity.block = identity.block + 1
-            if identity.block > #setting.storage.block.world then
-                if setting.mode.removeBot then
-                    removeBot(getBot().name)
-                    sleep(100)
-                end
-                error()
-            end
-        else
-            for i,tile in pairs(getTiles()) do
-                if tile.fg == 0 or tile.bg == 0 then
-                    ::BACK::
-                    findPath(blockX + (tileBlock),blockY)
-                    sleep(1000)
-                    local count = 0
-                    if blockX + (tileBlock) >= 98 then
-                        blockY = blockY - 1
-                        tileBlock = 0
-                    end
-                    while findItem(setting.item.block) > 0 do
-                        drop(setting.item.block)
-                        sleep(setting.delay.drop)
-                        count = count + 1
-                        if count >= 2 then
-                            tileBlock = tileBlock + 1
-                            goto BACK
-                        end
-                    end
-                end
-                if findItem(setting.item.block) == 0 then
-                    break
-                end
-            end
-            sleep(100)
-            break
-        end
-	end
 end
 
 identity.take = function()
@@ -1072,24 +1007,59 @@ identity.line = function()
     identity.warp(world,door)
     if not nuked then
         if not wrong then
-            if setting.type == "nogaut" then
-                if setting.mode.pnbtile == 1 then
-                    identity.botline = setting.mode.pnbtile + 3
-                    for _,tile in pairs(getTiles()) do
-                        for strs,bot in pairs(getBots()) do
-                            if bot.name == getBot().name then
-                                findPath(barisX - identity.param,barisY)
-                                sleep(1000)
-                                identity.reconnect(world,door,barisX,barisY)
-                                break
-                            else
-                                identity.param = identity.param + identity.botline
-                            end
-                        end
-                        break
-                    end
+            if identity.itemFloat(112) > setting.storage.pnb.limitgems then
+                if setting.mode.removeBot then
+                    identity.botinfo("Gems at world pnb has reached limit")
+                    print("Gems at world pnb has reached limit")
+                    sleep(2000)
+                    removeBot(getBot().name)
+                    error()
                 else
-                    identity.botline = setting.mode.pnbtile + 1
+                    random_letter = ""
+                    random_letter = identity.randomworld()
+                    while getTile(math.floor(getBot().x / 32), math.floor(getBot().y / 32)).fg ~= 6 do
+                        sendPacket("action|join_request\nname|" ..random_letter.."\ninvitedWorld|0", 3)
+                        sleep(5000)
+                    end
+                    identity.botinfo("Gems at world pnb has reached limit")
+                    print("Gems at world pnb has reached limit")
+                    error()
+                end
+            else 
+                if setting.type == "nogaut" then
+                    if setting.mode.pnbtile == 1 then
+                        identity.botline = setting.mode.pnbtile + 3
+                        for _,tile in pairs(getTiles()) do
+                            for strs,bot in pairs(getBots()) do
+                                if bot.name == getBot().name then
+                                    findPath(barisX - identity.param,barisY)
+                                    sleep(1000)
+                                    identity.reconnect(world,door,barisX,barisY)
+                                    break
+                                else
+                                    identity.param = identity.param + identity.botline
+                                end
+                            end
+                            break
+                        end
+                    else
+                        identity.botline = setting.mode.pnbtile + 1
+                        for _,tile in pairs(getTiles()) do
+                            for strs,bot in pairs(getBots()) do
+                                if bot.name == getBot().name then
+                                    findPath(barisX - identity.param,barisY)
+                                    sleep(1000)
+                                    identity.reconnect(world,door,barisX,barisY)
+                                    break
+                                else
+                                    identity.param = identity.param + identity.botline
+                                end
+                            end
+                            break
+                        end
+                    end
+                elseif setting.type == "gaut" then
+                    identity.botline = setting.mode.pnbtile
                     for _,tile in pairs(getTiles()) do
                         for strs,bot in pairs(getBots()) do
                             if bot.name == getBot().name then
@@ -1103,21 +1073,6 @@ identity.line = function()
                         end
                         break
                     end
-                end
-            elseif setting.type == "gaut" then
-                identity.botline = setting.mode.pnbtile
-                for _,tile in pairs(getTiles()) do
-                    for strs,bot in pairs(getBots()) do
-                        if bot.name == getBot().name then
-                            findPath(barisX - identity.param,barisY)
-                            sleep(1000)
-                            identity.reconnect(world,door,barisX,barisY)
-                            break
-                        else
-                            identity.param = identity.param + identity.botline
-                        end
-                    end
-                    break
                 end
             end
         else
@@ -1131,6 +1086,33 @@ identity.line = function()
         error()
     end
     identity.pnb()
+    if setting.type == "nogaut" then
+        if setting.mode.storeseedafterpnb then
+            identity.storingseeds()
+            identity.take()
+            identity.line()
+        else
+            identity.take()
+            identity.line()
+        end
+    elseif setting.type == "gaut" then
+        for _, obj in pairs(getObjects()) do
+            if obj.id == setting.item.seed then
+                findPath(identity.round(obj.x / 32),math.floor(obj.y / 32))
+                sleep(1000)
+                collect(2,112)
+                identity.reconnect(world,door,identity.round(obj.x / 32),math.floor(obj.y / 32))
+            end
+        end
+        if findItem(setting.item.seed) > 0 then
+            identity.storingseeds()
+            identity.take()
+            identity.line()
+        else
+            identity.take()
+            identity.line()
+        end
+    end
 end
 
 identity.pnb = function()
@@ -1171,7 +1153,7 @@ identity.pnb = function()
         end
     else
         while findItem(setting.item.block) >= setting.mode.pnbtile do
-            while identity.placeitemup(botX,botY) do
+            while identity.placeitem(botX,botY) do
                 for _,i in pairs(tilebreak) do
                     if getTile(botX + i,botY -2).fg == 0 and getTile(botX + i,botY - 2).bg == 0 then
                         place(setting.item.block,i,-2)
@@ -1180,7 +1162,7 @@ identity.pnb = function()
                     end
                 end
             end
-            while identity.punchitemup(botX,botY) do
+            while identity.punchitem(botX,botY) do
                 for _,i in pairs(tilebreak) do
                     if getTile(botX + i,botY - 2).fg ~= 0 or getTile(botX + i,botY - 2).bg ~= 0 then
                         punch(i,-2)
@@ -1204,33 +1186,6 @@ identity.pnb = function()
                 identity.storingpacks()
                 identity.line()
             end
-        end
-    end
-    if setting.type == "nogaut" then
-        if setting.mode.storeseedafterpnb then
-            identity.storingseeds()
-            identity.take()
-            identity.line()
-        else
-            identity.take()
-            identity.line()
-        end
-    elseif setting.type == "gaut" then
-        for _, obj in pairs(getObjects()) do
-            if obj.id == setting.item.seed then
-                findPath(identity.round(obj.x / 32),math.floor(obj.y / 32))
-                sleep(1000)
-                collect(2,112)
-                identity.reconnect(world,door,identity.round(obj.x / 32),math.floor(obj.y / 32))
-            end
-        end
-        if findItem(setting.item.seed) > 0 then
-            identity.storingseeds()
-            identity.take()
-            identity.line()
-        else
-            identity.take()
-            identity.line()
         end
     end
 end
