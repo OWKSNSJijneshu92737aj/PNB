@@ -1,10 +1,10 @@
 for i, bot in pairs(getBots()) do
     if getBot().name:upper() == bot.name:upper() then
-        param = i
+        indexbot = i
     end
 end
 
-botswitch = backup[param]
+botswitch = backup[indexbot]
 status = setting.webhook.botstatus
 webhook = setting.webhook.storageinfo.link
 message = setting.webhook.storageinfo.id
@@ -364,14 +364,14 @@ identity.backupacc = function()
                     break
                 end
             end
-            if getBot().status:find("online") and getBot().level < account.switch.level then
+            if getBot().status:find("online") and getBot().level < setting.botswitch.maxlevel then
                 if account.proxy.access then
                     identity.botinfo("Success add bot to : [ ||"..getBot().name.."|| ], proxy : "..getBot().proxy.."")
                 else
                     identity.botinfo("Success add bot to : [ ||"..getBot().name.."|| ]")
                 end
                 break
-            elseif getBot().status:find("online") and getBot().level >= account.switch.level then
+            elseif getBot().status:find("online") and getBot().level >= setting.botswitch.maxlevel then
                 removeBot(getBot().name)
                 identity.indexBackup = identity.indexBackup + 1
                 if identity.indexBackup > #botswitch then
@@ -396,14 +396,14 @@ identity.backupacc = function()
                     break
                 end
             end
-            if getBot().status:find("online") and getBot().level < account.switch.level then
+            if getBot().status:find("online") and getBot().level < setting.botswitch.maxlevel then
                 if account.proxy.access then
                     identity.botinfo("Success add bot to : [ "..getMac()..""..account.symbol..""..getRid().." ], proxy : "..getBot().proxy.."")
                 else
                     identity.botinfo("Success add bot to : [ "..getMac()..""..account.symbol..""..getRid().." ]")
                 end
                 break
-            elseif getBot().status:find("online") and getBot().level >= account.switch.level then
+            elseif getBot().status:find("online") and getBot().level >= setting.botswitch.maxlevel then
                 removeBot(getBot().name)
                 identity.indexBackup = identity.indexBackup + 1
                 if identity.indexBackup > #botswitch then
@@ -540,8 +540,8 @@ identity.webhookinfo = function()
 end
 
 identity.reconnect = function(world,id,x,y)
-    if getBot().level >= account.switch.level then
-        if account.switch.access then
+    if getBot().level >= setting.botswitch.maxlevel then
+        if setting.botswitch.access then
             while findItem(setting.item.block) > 0 do
                 identity.storingblocks()
             end
@@ -549,7 +549,6 @@ identity.reconnect = function(world,id,x,y)
                 identity.storingseeds()
             end
             identity.botinfo("[ ||"..getBot().name.."|| ] has reached level limit, changing bot")
-            removeBot(getBot().name)
             sleep(2000)
             identity.backupacc()
         end
@@ -1014,7 +1013,7 @@ end
 
 identity.storingblocks = function()
     for i = identity.drop , #setting.storage.block.world do
-        setJob("Take blocks")
+        setJob("Storing blocks")
 		world = setting.storage.block.world[i]
         door = setting.storage.block.door
         identity.warp(world,door)
@@ -1188,12 +1187,27 @@ identity.line = function()
             identity.take()
         end
     elseif setting.type == "gaut" then
-        identity.take()
+        for _, obj in pairs(getObjects()) do
+            if obj.id == setting.item.seed then
+                findPath(identity.round(obj.x / 32),math.floor(obj.y / 32))
+                sleep(1000)
+                collect(2,112)
+                sleep(1000)
+                identity.reconnect(world,door,identity.round(obj.x / 32),math.floor(obj.y / 32))
+            end
+        end
+        if findItem(setting.item.seed) > 0 then
+            identity.storingseeds()
+            identity.take()
+        else
+            identity.take()
+        end
     end
 end
 
 identity.pnb = function()
     setJob("PNB")
+    collectSet(false)
     botX = math.floor(getBot().x / 32)
     botY = math.floor(getBot().y / 32)
     world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
@@ -1212,9 +1226,6 @@ identity.pnb = function()
             end
             if setting.type == "nogaut" then
                 collect(2)
-                sleep(30)
-            elseif setting.type == "gaut" then
-                collect(2,112)
                 sleep(30)
             end
             if findItem(setting.item.seed) >= 150 then
@@ -1250,9 +1261,6 @@ identity.pnb = function()
             end
             if setting.type == "nogaut" then
                 collect(3)
-                sleep(30)
-            elseif setting.type == "gaut" then
-                collect(3,112)
                 sleep(30)
             end
             if findItem(setting.item.seed) >= 150 then
