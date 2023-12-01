@@ -1393,10 +1393,6 @@ end
 
 if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
     sleep(math.random(500,5000))
-    if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then
-        identity.takepickaxe()
-        sleep(250)
-    end
     if findItem(setting.item.block) >= setting.mode.pnbtile then
         identity.line()
         sleep(250)
