@@ -110,7 +110,11 @@ end
 identity.blockstorage = function()
     strings = ""
 	for i = 1, #setting.storage.block.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.block.world[i])).."|| "..(infoid[setting.storage.block.world[i]] or "?")..""
+        if setting.webhook.short then
+            strings = strings.."\n[ ||"..(string.sub(setting.storage.block.world[i],1,3)).."|| ] "..(infoid[setting.storage.block.world[i]] or "?")..""
+        else
+            strings = strings.."\n[ ||"..string.upper(setting.storage.block.world[i]).."|| ] "..(infoid[setting.storage.block.world[i]] or "?")..""
+        end
     end
     return strings
 end
@@ -118,7 +122,11 @@ end
 identity.seedstorage = function()
     strings = ""
 	for i = 1, #setting.storage.seed.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.seed.world[i])).."|| "..(infoid[setting.storage.seed.world[i]] or "?")..""
+        if setting.webhook.short then
+            strings = strings.."\n[ ||"..(string.sub(setting.storage.seed.world[i],1,3)).."|| ] "..(infoid[setting.storage.seed.world[i]] or "?")..""
+        else
+            strings = strings.."\n[ ||"..string.upper(setting.storage.seed.world[i]).."|| ] "..(infoid[setting.storage.seed.world[i]] or "?")..""
+        end
     end
     return strings
 end
@@ -126,7 +134,11 @@ end
 identity.packstorage = function()
     strings = ""
 	for i = 1, #setting.storage.pack.world do
-		strings = strings.."\n||"..(string.upper(setting.storage.pack.world[i])).."|| "..(infoid[setting.storage.pack.world[i]] or "?")..""
+        if setting.webhook.short then
+            strings = strings.."\n[ ||"..(string.sub(setting.storage.pack.world[i],1,3)).."|| ] "..(infoid[setting.storage.pack.world[i]] or "?")..""
+        else
+            strings = strings.."\n[ ||"..string.upper(setting.storage.pack.world[i]).."|| ] "..(infoid[setting.storage.pack.world[i]] or "?")..""
+        end
     end
     return strings
 end
@@ -180,7 +192,7 @@ identity.goodtimes = function(estimates)
 end
 
 identity.webhookinfo = function()
-	if setting.webhook.access then
+	if setting.webhook.storageinfo.access then
         local text = [[
             $webHookUrl = "]]..webhook..[[/messages/]]..message..[["
             $payload = @{
@@ -405,8 +417,8 @@ end
 
 identity.takepickaxe = function()
     ::BACK::
-    world = identity.splitt(setting.storage.takepickaxe.world[index],"[^:]+")[1]
-    door = identity.splitt(setting.storage.takepickaxe.world[index],"[^:]+")[2]
+    world = identity.splitt(setting.storage.pickaxe.world[index],"[^:]+")[1]
+    door = identity.splitt(setting.storage.pickaxe.world[index],"[^:]+")[2]
     setJob("Take pickaxe")
     sleep(250)
     identity.warp(world,door)
@@ -1126,8 +1138,8 @@ end
 identity.line = function()
     identity.param = 0
     ::Check::
-    if findItem(98) == 0 and account.takepickaxe.access and getBot().status == "online" then
-        identity.takepickaxe(threads)
+    if findItem(98) == 0 and setting.storage.pickaxe.access and getBot().status == "online" then
+        identity.takepickaxe()
         sleep(250)
         goto Check
     end
@@ -1391,8 +1403,240 @@ identity.pnb = function()
     end
 end
 
+identity.hook = function(varlist)
+	if varlist[0] == "OnDialogRequest" and varlist[1]:find("add_label_with_icon|big|`wUnstable Tesseract``|left|6948|") then
+		if varlist[1]:find("The machine is currently empty!") then 
+            sleep(1000)
+		else
+			amount = varlist[1]:match("The machine contains (%d+)")
+			amounts = 1
+			if tonumber(amount) >= 200 then 
+				amounts = 200 
+			end
+			if tonumber(amount) < 200 then 
+				amounts = tonumber(amount) 
+			end
+            local utpkt = string.format([[action|dialog_return
+            dialog_name|itemsucker_block
+            tilex|%d|
+            tiley|%d|
+            buttonClicked|retrieveitem
+            chk_enablesucking|1
+            ]], varlist[1]:match("tilex|(%d+)"), varlist[1]:match("tiley|(%d+)"))
+            sleep(1000)
+            sendPacket(utpkt,2)
+            sleep(1000)
+            local utpkt = string.format([[action|dialog_return
+            dialog_name|itemremovedfromsucker
+            tilex|%d|
+            tiley|%d|
+            itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , amounts)
+            sleep(1000)
+            sendPacket(utpkt,2)
+            sleep(1000)
+        end
+    end
+	if varlist[0] == "OnDialogRequest" and varlist[1]:find("add_label_with_icon|big|`wGaia's Beacon``|left|6946|") then
+		if varlist[1]:find("The machine is currently empty!") then 
+            sleep(1000)
+		else
+			ammount = varlist[1]:match("The machine contains (%d+)")
+			ammounts = 1
+			if tonumber(ammount) >= 200 then 
+				ammounts = 200 
+			end
+			if tonumber(ammount) < 200 then 
+				ammounts = tonumber(ammount) 
+			end
+            local gaiapkt = string.format([[action|dialog_return
+            dialog_name|itemsucker_seed
+            tilex|%d|
+            tiley|%d|
+            buttonClicked|retrieveitem
+            chk_enablesucking|1
+            ]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)"))
+            sleep(1000)
+            sendPacket(gaiapkt,2)
+            sleep(1000)
+            local gaiapkt = string.format([[action|dialog_return
+            dialog_name|itemremovedfromsucker
+            tilex|%d|
+            tiley|%d|
+            itemtoremove|%d]], varlist[1]:match("tilex|(%d+)") , varlist[1]:match("tiley|(%d+)") , ammounts)
+            sleep(1000)
+            sendPacket(gaiapkt,2)
+            sleep(1000)
+        end
+	end
+end
+
+addHook("onvariant","retrieve",identity.hook)
+
+identity.setposition = function()
+    ::Here::
+    world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
+    door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
+    setJob("Retrieve")
+    sleep(250)
+    identity.warp(world,door)
+    sleep(250)
+    if not server then
+        if not people then
+            if not level then
+                if not subserver then
+                    if not nuked then
+                        if not wrong then
+                            if string.upper(getBot().name) == string.upper(setting.retrieve.ut) then
+                                for i , tile in pairs(getTiles()) do
+                                    if tile.fg == 6948 then
+                                        findPath(tile.x,tile.y-1)
+                                        sleep(1000)
+                                        identity.utx = math.floor(getBot().x / 32)
+                                        identity.uty = math.floor(getBot().y / 32)
+                                        sleep(1000)
+                                    end
+                                end
+                            elseif string.upper(getBot().name) == string.upper(setting.retrieve.gaia) then
+                                for i, tile in pairs(getTiles()) do
+                                    if tile.fg == 6946 then
+                                        findPath(tile.x,tile.y-1)
+                                        sleep(1000)
+                                        identity.gaiax = math.floor(getBot().x / 32)
+                                        identity.gaiay = math.floor(getBot().y / 32)
+                                        sleep(1000)
+                                    end
+                                end
+                            end
+                        else
+                            wrong = false
+                            sleep(5000)
+                            identity.botinfo("World pnb : [ ||"..world.."|| ] is Wrong door, terminated script @everyone")
+                            sleep(250)
+                            print("World pnb : [ "..world.." ] is Wrong door, terminated script")
+                            sleep(250)
+                            error()
+                        end
+                    else
+                        nuked = false
+                        sleep(5000)
+                        identity.botinfo("World pnb : [ ||"..world.."|| ] is NUKED @everyone")
+                        sleep(250)
+                        print("World pnb : [ "..world.." ] is NUKED, terminated script")
+                        sleep(250)
+                        error()
+                    end
+                else
+                    subserver = false
+                    sleep(5000)
+                    print("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes")
+                    sleep(250)
+                    identity.botinfo("Bot : "..getBot().name.." system is sub-server, sleeping for 2 minutes @everyone")
+                    sleep(120000)
+                    goto Here
+                end
+            else
+                level = false
+                sleep(5000)
+                print("World : "..getBot().world.." has level limit, change ur level world limit")
+                sleep(250)
+                identity.botinfo("World : "..getBot().world.." has level limit, change ur level world limit !, terminated script @everyone")
+                sleep(250)
+                error()
+            end
+        else
+            people = false
+            sleep(5000)
+            print("World : "..getBot().world.." has full people, sleeping for 2 minutes")
+            sleep(250)
+            identity.botinfo("World : "..getBot().world.." has full people, sleeping for 2 minutes")
+            sleep(120000)
+            goto Here
+        end
+    else
+        server = false
+        sleep(5000)
+        print("Bot : "..getBot().name.." idiot server, sleeping for 2 minutes")
+        sleep(250)
+        identity.botinfo("Bot : "..getBot().name.." idiot server, sleeping for 2 minutes@everyone")
+        sleep(120000)
+        goto Here
+    end
+end
+
+identity.storingretrieve = function()
+    world = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[1]
+    door = identity.splitt(setting.storage.pnb.world[index],"[^:]+")[2]
+    if string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia) then
+        for i, tile in pairs(getTiles()) do
+            if tile.fg == 6946 then
+                findPath(tile.x,tile.y - 1)
+                sleep(1000)
+                identity.reconnect(world,door,tile.x,tile.y - 1)
+            end
+            while findItem(setting.item.seed) > 0 do
+                drop(setting.item.seed)
+                sleep(setting.delay.drop)
+                move(1,0)
+                sleep(250)
+                identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+            end
+        end
+    elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut) then
+        for i, tile in pairs(getTiles()) do
+            if tile.fg == 6948 then
+                findPath(tile.x,tile.y - 1)
+                sleep(1000)
+                identity.reconnect(world,door,tile.x,tile.y - 1)
+            end
+            while findItem(setting.item.block) > 0 do
+                drop(setting.item.block)
+                sleep(setting.delay.drop)
+                move(1,0)
+                sleep(250)
+                identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+            end
+        end
+    end
+end
+
 if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
     sleep(math.random(500,5000))
+    if findItem(9640) > 0 then
+        ::SUCK::
+        identity.warp(find,"")
+        while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32) - 1).fg ~= 9640 do
+            place(9640,0,-1)
+            sleep(setting.delay.place)
+        end
+        if findItem(9640) > 0 then
+            goto SUCK
+        end
+    end
+    if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut) or string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia) then
+        identity.setposition()
+        sleep(250)
+        while true do
+            if string.upper(getBot().name) == string.upper(setting.retrieve.ut) then
+                findPath(identity.utx,identity.uty)
+                sleep(setting.delay.retrieve)
+                wrench(0,1)
+                sleep(setting.delay.retrieve*2)
+                identity.storingretrieve()
+                sleep(250)
+                identity.reconnect(world,door,identity.utx,identity.uty)
+                sleep(250)
+            elseif string.upper(getBot().name) == string.upper(setting.retrieve.gaia) then
+                findPath(identity.gaiax,identity.gaiay)
+                sleep(setting.delay.retrieve)
+                wrench(0,1)
+                sleep(setting.delay.retrieve*2)
+                identity.storingretrieve()
+                sleep(250)
+                identity.reconnect(world,door,identity.gaiax,identity.gaiay)
+                sleep(250)
+            end
+        end
+    end
     if findItem(setting.item.block) >= setting.mode.pnbtile then
         identity.line()
         sleep(250)
