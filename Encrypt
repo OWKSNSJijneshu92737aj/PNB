@@ -23,6 +23,10 @@ identity.drop = 1
 identity.goodtime = os.time()
 identity.indexBot = 1
 identity.indexBackup = 1
+identity.gaiax = 0
+identity.gaiay = 0
+identity.utx = 0
+identity.uty = 0
 seedX = setting.storage.seed.drop.x - 1
 seedY = setting.storage.seed.drop.y - 1
 packX = setting.storage.pack.drop.x - 1
@@ -1486,7 +1490,7 @@ identity.setposition = function()
                 if not subserver then
                     if not nuked then
                         if not wrong then
-                            if string.upper(getBot().name) == string.upper(setting.retrieve.ut) then
+                            if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut) then
                                 for i , tile in pairs(getTiles()) do
                                     if tile.fg == 6948 then
                                         findPath(tile.x,tile.y-1)
@@ -1496,7 +1500,7 @@ identity.setposition = function()
                                         sleep(1000)
                                     end
                                 end
-                            elseif string.upper(getBot().name) == string.upper(setting.retrieve.gaia) then
+                            elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia) then
                                 for i, tile in pairs(getTiles()) do
                                     if tile.fg == 6946 then
                                         findPath(tile.x,tile.y-1)
@@ -1573,12 +1577,16 @@ identity.storingretrieve = function()
                 sleep(1000)
                 identity.reconnect(world,door,tile.x,tile.y - 1)
             end
-            while findItem(setting.item.seed) > 0 do
+            ::BACK::
+            if findItem(setting.item.seed) > 0 then
                 drop(setting.item.seed)
                 sleep(setting.delay.drop)
-                move(1,0)
-                sleep(250)
-                identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+                identity.reconnect(world,door,tile.x,tile.y - 1)
+                if findItem(setting.item.seed) > 0 then
+                    move(1,0)
+                    sleep(500)
+                    goto BACK
+                end
             end
         end
     elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut) then
@@ -1588,12 +1596,16 @@ identity.storingretrieve = function()
                 sleep(1000)
                 identity.reconnect(world,door,tile.x,tile.y - 1)
             end
-            while findItem(setting.item.block) > 0 do
+            ::BACK::
+            if findItem(setting.item.block) > 0 then
                 drop(setting.item.block)
                 sleep(setting.delay.drop)
-                move(1,0)
-                sleep(250)
-                identity.reconnect(world,door,tile.x+(tileRetrieve),tile.y - 1)
+                identity.reconnect(world,door,tile.x,tile.y - 1)
+                if findItem(setting.item.block) > 0 then
+                    move(1,0)
+                    sleep(500)
+                    goto BACK
+                end
             end
         end
     end
@@ -1616,7 +1628,7 @@ if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
         identity.setposition()
         sleep(250)
         while true do
-            if string.upper(getBot().name) == string.upper(setting.retrieve.ut) then
+            if string.upper(getBot().name) == string.upper(setting.mode.retrieve.ut) then
                 findPath(identity.utx,identity.uty)
                 sleep(setting.delay.retrieve)
                 wrench(0,1)
@@ -1625,7 +1637,7 @@ if BizzantiuM.version == "1.0" and BizzantiuM.handler == "akbarsht" then
                 sleep(250)
                 identity.reconnect(world,door,identity.utx,identity.uty)
                 sleep(250)
-            elseif string.upper(getBot().name) == string.upper(setting.retrieve.gaia) then
+            elseif string.upper(getBot().name) == string.upper(setting.mode.retrieve.gaia) then
                 findPath(identity.gaiax,identity.gaiay)
                 sleep(setting.delay.retrieve)
                 wrench(0,1)
