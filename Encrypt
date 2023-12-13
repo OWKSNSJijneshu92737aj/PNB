@@ -540,7 +540,6 @@ identity.warp = function(world,door)
                 end
             end
         end)
-        local join = 0
         while getBot().world ~= string.upper(world) and not nuked and not subserver and not people and not level do
             while getBot().status ~= "online" do
                 connect()
@@ -854,6 +853,19 @@ identity.storingseeds = function()
                                     infoid[world] = "["..identity.itemFloat(seed).."] LIMIT !!!"
                                     identity.botinfo("All seeds storage has reached limit, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                     print("All seeds storage has reached limit, Removing bot : [ "..getBot().name.." ] @everyone")
+                                    if pnbotherworld then
+                                        identity.warp(find,"")
+                                        while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
+                                            move(1,0)
+                                            sleep(500)
+                                        end
+                                        while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32) - 1).fg == 226 do
+                                            punch(0,-1)
+                                            sleep(delaypunch)
+                                            identity.reconnect(find,"")
+                                        end
+                                        identity.storingjammer()
+                                    end
                                     identity.warp(find,"")
                                     if removingbot then
                                         removeBot(getBot().name)
@@ -977,6 +989,19 @@ identity.take = function()
                                     identity.botinfo("All take blocks storage has empty, Removing bot : [ ||"..getBot().name.."|| ] @everyone")
                                     print("All take blocks storage has empty, Removing bot : [ "..getBot().name.." ]")
                                     identity.storingseeds()
+                                    if pnbotherworld then
+                                        identity.warp(find,"")
+                                        while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
+                                            move(1,0)
+                                            sleep(500)
+                                        end
+                                        while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32) - 1).fg == 226 do
+                                            punch(0,-1)
+                                            sleep(delaypunch)
+                                            identity.reconnect(find,"")
+                                        end
+                                        identity.storingjammer()
+                                    end
                                     identity.warp(find,"")   
                                     if removingbot then
                                         removeBot(getBot().name)
