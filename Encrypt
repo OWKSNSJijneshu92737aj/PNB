@@ -456,10 +456,11 @@ identity.reconnect = function(world,id,x,y)
                 if backupwhensuspend then
                     identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
                     identity.backupacc()
-                end
-                if removingbot then
-                    removeBot(getBot().name)
-                    sleep(2000)
+                else
+                    if removingbot then
+                        removeBot(getBot().name)
+                        sleep(2000)
+                    end
                     error()
                 end
             end
@@ -548,10 +549,11 @@ identity.warp = function(world,door)
                     if backupwhensuspend then
                         identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
                         identity.backupacc()
-                    end
-                    if removingbot then
-                        removeBot(getBot().name)
-                        sleep(2000)
+                    else
+                        if removingbot then
+                            removeBot(getBot().name)
+                            sleep(2000)
+                        end
                         error()
                     end
                 end
@@ -573,10 +575,11 @@ identity.warp = function(world,door)
                         if backupwhensuspend then
                             identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
                             identity.backupacc()
-                        end
-                        if removingbot then
-                            removeBot(getBot().name)
-                            sleep(2000)
+                        else
+                            if removingbot then
+                                removeBot(getBot().name)
+                                sleep(2000)
+                            end
                             error()
                         end
                     end
