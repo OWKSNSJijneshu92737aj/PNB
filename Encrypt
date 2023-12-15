@@ -1,7 +1,3 @@
-setBool("Auto Reconnect",false)
-setBool("Show Place Hand",false)
-setBool("Show Punch Hand",false)
-
 for i, bot in pairs(getBots()) do
     if getBot().name:upper() == bot.name:upper() then
         indexbot = i
@@ -553,8 +549,8 @@ identity.warp = function(world,door)
                 sleep(delayreconnect)
                 if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
                     if backupwhensuspend then
-                    removeBot(getBot().name)
-                    sleep(2000)
+                        removeBot(getBot().name)
+                        sleep(2000)
                         identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
                         identity.backupacc()
                     else
@@ -581,8 +577,8 @@ identity.warp = function(world,door)
                     sleep(delayreconnect)
                     if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
                         if backupwhensuspend then
-                    removeBot(getBot().name)
-                    sleep(2000)
+                            removeBot(getBot().name)
+                            sleep(2000)
                             identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
                             identity.backupacc()
                         else
