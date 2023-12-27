@@ -6,7 +6,6 @@ end
 
 tilebreak = {}
 infoid = {}
-backups = {}
 strings = ""
 local tileBlock = 0
 local tileSeed = 0
@@ -20,7 +19,6 @@ identity.seed = 1
 identity.pack = 1
 identity.drop = 1
 identity.goodtime = os.time()
-identity.indexBackup = 1
 identity.gaiax = 0
 identity.gaiay = 0
 identity.utx = 0
@@ -36,10 +34,6 @@ blockY = dropblockY - 1
 jammerX = dropjammerX - 1
 jammerY = dropjammerY - 1
 seed = block + 1
-
-for i = 1,backupPerbot do
-    table.insert(backups,backupList[math.floor((indexbot - 1) * backupPerbot + i)])
-end
 
 identity.splitt = function(str, ptr)
     if not ptr then 
@@ -177,153 +171,6 @@ identity.genworld = function()
 end
 local find = identity.genworld()
 
-identity.backupacc = function()
-    ::BACK::
-    for i = identity.indexBackup, #backups do
-        thread = identity.splitt(backups[i],"([^"..symbol.."]+)")[1]
-        threading = identity.splitt(backups[i],"([^"..symbol.."]+)")[2]
-        num = identity.splitt(backups[i],"([^"..symbol.."]+)")[3] or ""
-        if proxy then
-            if typeaccount == "guest" then
-                if macposition == "left" then
-                    addBot(find,true,num)
-                    sleep(1000)
-                    setMac(thread)
-                    setRid(threading)
-                    connect()
-                elseif macposition == "right" then
-                    addBot(identity.randomguest(),true,num)
-                    sleep(1000)
-                    setMac(threading)
-                    setRid(thread)
-                    connect()
-                end
-            elseif typeaccount == "normal" then
-                addBot(thread,threading,num)
-                sleep(delayloginbot)
-            end
-        else
-            if typeaccount == "guest" then
-                if macposition == "left" then
-                    addBot(find)
-                    sleep(1000)
-                    setMac(thread)
-                    setRid(threading)
-                    connect()
-                elseif macposition == "right" then
-                    addBot(find)
-                    sleep(1000)
-                    setMac(threading)
-                    setRid(thread)
-                    connect()
-                end
-            elseif typeaccount == "normal" then
-                addBot(thread,threading)
-                sleep(delayloginbot)
-            end
-        end
-        setBool("Auto Reconnect",false)
-        sleep(delayloginbot)
-        identity.botinfo("Changing bot to : [ ||"..getBot().name.."|| ]")
-        if typeaccount == "normal" then
-            while getBot().status ~= "online" do
-                connect()
-                sleep(delayreconnect)
-                if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "aap detected" or getBot().status == "temporary ban" then
-                    identity.botinfo("Failed switch bot to : [ ||"..getBot().name.."|| ] status is "..getBot().status..", Removing bots @everyone")
-                    identity.writeFile("status","[ "..getBot().name.." ] status is "..getBot().status.."")
-                    removeBot(getBot().name)
-                    sleep(2000)
-                    identity.indexBackup = identity.indexBackup + 1
-                    if identity.indexBackup > #backups then
-                        print("No more bots to switch, sc terminated")
-                        identity.botinfo("No more bots to switch, sc terminated @everyone")
-                        if removingbot then
-                            removeBot(getBot().name)
-                            sleep(2000)
-                        end
-                        error()
-                    end
-                    sleep(2000)
-                    goto BACK
-                end
-            end
-            if getBot().status:find("online") and getBot().level < maxlevel then
-                if proxy then
-                    identity.botinfo("Success switch bot to : [ ||"..getBot().name.."|| ], proxy : "..getBot().proxy.."")
-                else
-                    identity.botinfo("Success switch bot to : [ ||"..getBot().name.."|| ]")
-                end
-                break
-            elseif getBot().status:find("online") and getBot().level >= maxlevel then
-                if proxy then
-                    identity.botinfo("Failed switch bot to : [ ||"..getBot().name.."|| ], proxy : "..getBot().proxy..", this bot has reached max level, rechecking ur backup bot list")
-                else
-                    identity.botinfo("Failed switch bot to : [ ||"..getBot().name.."|| ], this bot has reached max level, rechecking ur backup bot list")
-                end
-                removeBot(getBot().name)
-                sleep(2000)
-                identity.indexBackup = identity.indexBackup + 1
-                if identity.indexBackup > #backups then
-                    identity.botinfo("No more bots to switch, sc terminated @everyone")
-                    if removingbot then
-                        removeBot(getBot().name)
-                        sleep(2000)
-                    end
-                    error()
-                end
-            end
-        elseif typeaccount == "guest" then
-            while getBot().status ~= "online" do
-                connect()
-                sleep(delayreconnect)
-                if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "got captcha" or getBot().status == "temporary ban" then
-                    identity.botinfo("Bot backup : [ ||"..getBot().name.."|| ] status is "..getBot().status..", Terminated script @everyone")
-                    identity.writeFile("status","[ "..getMac()..""..symbol..""..getRid().." ] status is "..getBot().status.."")
-                    removeBot(getBot().name)
-                    sleep(2000)
-                    identity.indexBackup = identity.indexBackup + 1
-                    if identity.indexBackup > #backups then
-                        identity.botinfo("No more bots to switch, sc terminated @everyone")
-                        if removingbot then
-                            removeBot(getBot().name)
-                            sleep(2000)
-                        end
-                        error()
-                    end
-                    goto BACK
-                end
-            end
-            if getBot().status:find("online") and getBot().level < maxlevel then
-                if proxy then
-                    identity.botinfo("Success add bot to : [ "..getMac()..""..symbol..""..getRid().." ], proxy : "..getBot().proxy.."")
-                else
-                    identity.botinfo("Success add bot to : [ "..getMac()..""..symbol..""..getRid().." ]")
-                end
-                break
-            elseif getBot().status:find("online") and getBot().level >= maxlevel then
-                if proxy then
-                    identity.botinfo("Failed switch bot to : [ "..getMac()..""..symbol..""..getRid().." ], proxy : "..getBot().proxy..", this bot has reached max level, rechecking ur backup bot list")
-                else
-                    identity.botinfo("Failed switch bot to : [ "..getMac()..""..symbol..""..getRid().." ], this bot has reached max level, rechecking ur backup bot list")
-                end
-                removeBot(getBot().name)
-                sleep(2000)
-                identity.indexBackup = identity.indexBackup + 1
-                if identity.indexBackup > #backups then
-                    print("No more bots to switch, sc terminated")
-                    identity.botinfo("No more bots to switch, sc terminated @everyone")
-                    if removingbot then
-                        removeBot(getBot().name)
-                        sleep(2000)
-                    end
-                    error()
-                end
-            end
-        end
-    end
-end
-
 identity.botgems = function()
     local count = 0
     for _,bot in pairs(getBots()) do
@@ -453,18 +300,11 @@ identity.reconnect = function(world,id,x,y)
             sleep(delayreconnect)
             if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
                 identity.botinfo("[ ||"..getBot().name.."|| ] status is "..getBot().status.." @everyone")
-                if backupwhensuspend then
+                if removingbot then
                     removeBot(getBot().name)
                     sleep(2000)
-                    identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
-                    identity.backupacc()
-                else
-                    if removingbot then
-                        removeBot(getBot().name)
-                        sleep(2000)
-                    end
-                    error()
                 end
+                error()
             end
         end
         local counts = 0
@@ -548,18 +388,11 @@ identity.warp = function(world,door)
                 connect()
                 sleep(delayreconnect)
                 if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
-                    if backupwhensuspend then
+                    if removingbot then
                         removeBot(getBot().name)
                         sleep(2000)
-                        identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
-                        identity.backupacc()
-                    else
-                        if removingbot then
-                            removeBot(getBot().name)
-                            sleep(2000)
-                        end
-                        error()
                     end
+                    error()
                 end
             end
             sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
@@ -576,18 +409,11 @@ identity.warp = function(world,door)
                     connect()
                     sleep(delayreconnect)
                     if getBot().status == "suspended" or getBot().status == "banned" or getBot().status == "maintenance" then
-                        if backupwhensuspend then
+                        if removingbot then
                             removeBot(getBot().name)
                             sleep(2000)
-                            identity.botinfo("Backup are enable, changing bot [ ||"..getBot().name.."|| ]")
-                            identity.backupacc()
-                        else
-                            if removingbot then
-                                removeBot(getBot().name)
-                                sleep(2000)
-                            end
-                            error()
                         end
+                        error()
                     end
                 end
                 sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
@@ -1408,46 +1234,6 @@ identity.line = function()
     end
 end
 
-identity.checkaccount = function()
-    identity.botinfo("[ ||"..getBot().name.."|| ] has reached level limit, changing bot if bot switch are enable")
-    if findItem(block) > 0 then
-        identity.storingblocks()
-    end
-    if findItem(seed) > 0 then
-        identity.storingseeds()
-    end
-    if backuplevel then
-        removeBot(getBot().name)
-        sleep(2000)
-        identity.backupacc()
-    else
-        if pnbotherworld then
-            identity.warp(find,"")
-            while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32)).fg == 6 do
-                move(1,0)
-                sleep(500)
-            end
-            ::BACK::
-            while getTile(math.floor(getBot().x / 32),math.floor(getBot().y / 32) - 1).fg == 226 do
-                punch(0,-1)
-                sleep(delayplace)
-                identity.reconnect(find,"")
-            end
-            if findItem(226) > 0 then
-                identity.storingjammer()
-            else
-                goto BACK
-            end
-        end
-        identity.warp(find,"")          
-        if removingbot then
-            removeBot(getBot().name)
-            sleep(2000)
-        end
-        error()
-    end
-end
-
 identity.storingjammer = function()
     ::BACK::
     setJob("Storing jammer")
@@ -1546,10 +1332,6 @@ identity.pnb = function(name,id)
                 collect(3)
                 sleep(30)
             end
-            if getBot().level >= maxlevel and backuplevel then
-                identity.checkaccount()
-                identity.line()
-            end
             if findItem(seed) >= amountseed then
                 identity.storingseeds()
                 identity.line()
@@ -1582,10 +1364,6 @@ identity.pnb = function(name,id)
             if typescript == "nogaut" then
                 collect(3)
                 sleep(30)
-            end
-            if getBot().level >= maxlevel and backuplevel then
-                identity.checkaccount()
-                identity.line()
             end
             if findItem(seed) >= amountseed then
                 identity.storingseeds()
